@@ -47,3 +47,12 @@ test('validateEvidence enforces evidence-v1 date-time and additional-property ru
   assert.ok(result.errors.some((error) => error.includes('findings must be a array')));
   assert.ok(result.errors.some((error) => error.includes('metadata must be a object')));
 });
+
+test('validateEvidence enforces RFC 3339 timezone offset bounds', () => {
+  const valid = (createdAt) => validateEvidence({
+    schema: 'evidence-v1', createdAt, kind: 'inspection', subject: {}, findings: [], metadata: {}
+  }).valid;
+  assert.equal(valid('2026-01-02T03:04:05+00:30'), true);
+  assert.equal(valid('2026-01-02T03:04:05-05:30'), true);
+  assert.equal(valid('2026-01-02T03:04:05+24:00'), false);
+});

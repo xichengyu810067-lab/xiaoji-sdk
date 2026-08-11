@@ -26,3 +26,8 @@ test('redact masks private hostnames and IP addresses in free text', () => {
   assert.equal(output, '[REDACTED_HOST] connects to [REDACTED_HOST]');
 });
 
+test('redact fail-closes arbitrary URI schemes that contain userinfo', () => {
+  const output = redact('redis://u:synthetic-password@cache.internal/0');
+  assert.equal(output, '[REDACTED_CREDENTIAL_URI]');
+  assert.doesNotMatch(output, /synthetic-password|cache\.internal/);
+});

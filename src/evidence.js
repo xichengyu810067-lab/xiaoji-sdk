@@ -62,7 +62,7 @@ function isRfc3339DateTime(value) {
   if (!match) return false;
   const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
   if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) return false;
-  if (match[8] && (Number(match[9]) > 23 || Number(match[10]) > 59)) return false;
+  if (match[7] && (Number(match[8]) > 23 || Number(match[9]) > 59)) return false;
   return day >= 1 && day <= new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
