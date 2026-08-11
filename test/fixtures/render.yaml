@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: synthetic-service
+    envVars:
+      - key: SYNTHETIC_MODE
+
