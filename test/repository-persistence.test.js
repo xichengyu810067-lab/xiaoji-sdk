@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { inspectRepository } = require('../src/repository');
+const { inspectRepository, runReadOnlyGit } = require('../src/repository');
 const { inspectPersistencePaths, createJsonFileStore } = require('../src/persistence');
 
 test('inspectRepository reports this local repository without querying a remote', () => {
@@ -13,6 +13,14 @@ test('inspectRepository reports this local repository without querying a remote'
   assert.equal(result.isRepository, true);
   assert.equal(typeof result.clean, 'boolean');
   assert.ok(/^[0-9a-f]{40}$/.test(result.head));
+});
+
+test('runReadOnlyGit rejects Git write argv even when its command prefix looks safe', () => {
+  assert.throws(
+    () => runReadOnlyGit(path.join(__dirname, '..'), ['remote', 'add', 'origin', 'https://example.invalid/repo.git']),
+    /argv is not allowlisted/
+  );
+  assert.throws(() => runReadOnlyGit(path.join(__dirname, '..'), ['status', '--short']), /argv is not allowlisted/);
 });
 
 test('inspectPersistencePaths stays inside root', () => {
