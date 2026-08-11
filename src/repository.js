@@ -4,10 +4,18 @@ const { existsSync, statSync } = require('node:fs');
 const { resolve } = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const READ_ONLY_GIT_COMMANDS = new Set(['rev-parse', 'status', 'remote']);
+const READ_ONLY_GIT_ARGV = [
+  ['rev-parse', '--show-toplevel'],
+  ['rev-parse', '--abbrev-ref', 'HEAD'],
+  ['rev-parse', 'HEAD'],
+  ['status', '--porcelain=v1'],
+  ['remote']
+];
 
 function runReadOnlyGit(cwd, args) {
-  if (!READ_ONLY_GIT_COMMANDS.has(args[0])) throw new Error('Git command is not allowlisted for inspection');
+  if (!READ_ONLY_GIT_ARGV.some((allowed) => allowed.length === args.length && allowed.every((part, index) => part === args[index]))) {
+    throw new Error('Git argv is not allowlisted for inspection');
+  }
   const result = spawnSync('git', args, { cwd, encoding: 'utf8', shell: false });
   return {
     ok: result.status === 0 && !result.error,
@@ -40,4 +48,3 @@ function inspectRepository(directory = process.cwd()) {
 }
 
 module.exports = { inspectRepository, runReadOnlyGit };
-

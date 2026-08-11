@@ -29,3 +29,21 @@ test('validateEvidence reports invalid shapes', () => {
   assert.ok(result.errors.length >= 4);
 });
 
+test('validateEvidence enforces evidence-v1 date-time and additional-property rules', () => {
+  const base = {
+    schema: 'evidence-v1',
+    createdAt: '2026-02-30T03:04:05Z',
+    kind: 'inspection',
+    subject: [],
+    findings: {},
+    metadata: null,
+    status: 'unrecognized'
+  };
+  const result = validateEvidence(base);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.includes('createdAt')));
+  assert.ok(result.errors.some((error) => error.includes('status is not allowed')));
+  assert.ok(result.errors.some((error) => error.includes('subject must be a object')));
+  assert.ok(result.errors.some((error) => error.includes('findings must be a array')));
+  assert.ok(result.errors.some((error) => error.includes('metadata must be a object')));
+});
