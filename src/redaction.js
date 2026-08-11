@@ -1,6 +1,6 @@
 'use strict';
 
-const SENSITIVE_KEY = /(?:token|secret|password|authorization|cookie|api[-_]?key|webhook|host|hostname|(?:^|[_-])id)$/i;
+const SENSITIVE_KEY = /(?:token|secret|password|authorization|cookie|api[-_]?key|webhook|host|hostname|id)$/i;
 const URL_PATTERN = /\b(?:https?|wss?):\/\/[^\s"']+/gi;
 const BEARER_PATTERN = /\bBearer\s+[^\s"']+/gi;
 
@@ -33,4 +33,3 @@ function redact(value, options = {}) {
 }
 
 module.exports = { redact, SENSITIVE_KEY };
-
