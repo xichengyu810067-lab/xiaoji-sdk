@@ -1,0 +1,11 @@
+{
+  "schema": "evidence-v1",
+  "createdAt": "2026-01-02T03:04:05.000Z",
+  "kind": "synthetic-fixture",
+  "subject": {
+    "path": "synthetic-project"
+  },
+  "findings": [],
+  "metadata": {}
+}
+
