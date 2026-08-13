@@ -83,7 +83,8 @@ contact a network service.
 
 Use only `TVHTML5_SIMPLY` in the YouTube client configuration. The inspection
 API rejects OAuth, poToken, cookie, token, visitor-data, and refresh-token
-keys at any nested level. Its output reports key paths, never values.
+keys at any nested level. Its output reports key paths and client counts, never
+configuration values.
 
 The runtime evidence validator separates a parsed result from actual playback:
 each of five unique tracks needs actual `TrackStart` and now-playing events.

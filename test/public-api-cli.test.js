@@ -38,4 +38,7 @@ test('CLI help and repository inspection work on Windows and Linux shells', () =
   const evidence = spawnSync(process.execPath, [cli, 'youtube', 'evidence', path.join(__dirname, 'fixtures', 'youtube-runtime-partial.json')], { encoding: 'utf8' });
   assert.equal(evidence.status, 1);
   assert.equal(JSON.parse(evidence.stdout).status, 'partial');
+  const invalidRoute = spawnSync(process.execPath, [cli, 'repo', 'classify', path.join(__dirname, '..')], { encoding: 'utf8' });
+  assert.equal(invalidRoute.status, 1);
+  assert.match(invalidRoute.stderr, /unsupported area/);
 });

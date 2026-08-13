@@ -40,15 +40,12 @@ function main(argv = process.argv.slice(2)) {
     return 0;
   }
   const [area, action, target] = argv;
-  if (!['inspect', 'classify', 'validate', 'evidence'].includes(action)) {
-    throw new Error('unsupported command; run with --help');
-  }
-  if (area === 'repo') print(sdk.inspectRepository(target || process.cwd()));
-  else if (area === 'render') print(sdk.inspectRenderBlueprint(requirePath(target, 'blueprint')));
+  if (area === 'repo' && action === 'inspect') print(sdk.inspectRepository(target || process.cwd()));
+  else if (area === 'render' && action === 'inspect') print(sdk.inspectRenderBlueprint(requirePath(target, 'blueprint')));
   else if (area === 'lavalink' && action === 'inspect') print(sdk.inspectLavalinkConfig(requirePath(target, 'configuration')));
   else if (area === 'lavalink' && action === 'classify') print(sdk.classifyLavalinkV4LoadResult(readConfig(target)));
-  else if (area === 'persistence') print(sdk.inspectPersistencePaths(target || process.cwd()));
-  else if (area === 'evidence') {
+  else if (area === 'persistence' && action === 'inspect') print(sdk.inspectPersistencePaths(target || process.cwd()));
+  else if (area === 'evidence' && action === 'validate') {
     const file = path.resolve(requirePath(target, 'evidence'));
     const result = sdk.validateEvidence(JSON.parse(fs.readFileSync(file, 'utf8')));
     print(result);

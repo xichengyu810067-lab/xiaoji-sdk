@@ -22,19 +22,23 @@ function fiveTracks() {
 }
 
 test('YouTube policy permits only TVHTML5_SIMPLY and prohibits credential keys', () => {
-  assert.equal(inspectYouTubeClientPolicy({ youtube: { clients: ['TVHTML5_SIMPLY'] } }).valid, true);
-  const denied = inspectYouTubeClientPolicy({ youtube: { clients: ['TVHTML5_SIMPLY', 'WEB'], poToken: 'synthetic-value', refreshToken: 'synthetic-value' } });
+  const accepted = inspectYouTubeClientPolicy({ youtube: { clients: ['TVHTML5_SIMPLY'] } });
+  assert.equal(accepted.valid, true);
+  assert.equal(accepted.clientCount, 1);
+  assert.equal(accepted.allowedClientConfigured, true);
+  const denied = inspectYouTubeClientPolicy({ youtube: { clients: ['synthetic-untrusted-client-value'], poToken: 'synthetic-value', oauth_token: 'synthetic-value', cookie_header: 'synthetic-value', refreshToken: 'synthetic-value' } });
   assert.equal(denied.valid, false);
-  assert.deepEqual(denied.forbiddenKeys, ['youtube.poToken', 'youtube.refreshToken']);
-  assert.doesNotMatch(JSON.stringify(denied), /synthetic-value/);
+  assert.deepEqual(denied.forbiddenKeys, ['youtube.poToken', 'youtube.oauth_token', 'youtube.cookie_header', 'youtube.refreshToken']);
+  assert.doesNotMatch(JSON.stringify(denied), /synthetic-value|synthetic-untrusted-client-value/);
 });
 
 test('classifyLavalinkV4LoadResult handles each v4 loadType fail-closed', () => {
   assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'error', data: { message: 'synthetic error' } }), { loadType: 'error', category: 'error', playable: false, itemCount: 0 });
   assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'empty', data: {} }), { loadType: 'empty', category: 'empty', playable: false, itemCount: 0 });
-  assert.equal(classifyLavalinkV4LoadResult({ loadType: 'track', data: {} }).playable, true);
-  assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'search', data: [] }), { loadType: 'search', category: 'search', playable: false, itemCount: 0 });
-  assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'playlist', data: { tracks: [{}, {}] } }), { loadType: 'playlist', category: 'playlist', playable: true, itemCount: 2 });
+  assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'track', data: {} }), { loadType: 'track', category: 'track', playable: false, itemCount: 0 });
+  assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'search', data: [{}] }), { loadType: 'search', category: 'search', playable: false, itemCount: 0 });
+  assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'playlist', data: { tracks: [{}] } }), { loadType: 'playlist', category: 'playlist', playable: false, itemCount: 0 });
+  assert.deepEqual(classifyLavalinkV4LoadResult({ loadType: 'playlist', data: { tracks: [{ encoded: 'synthetic-track' }, {}] } }), { loadType: 'playlist', category: 'playlist', playable: true, itemCount: 1 });
   assert.equal(classifyLavalinkV4LoadResult({ loadType: 'unexpected' }).category, 'unknown');
 });
 
@@ -52,7 +56,9 @@ test('control timeline fails closed until every control has an actual passed eve
   const partial = validateControlTimeline([{ control: 'queue', status: 'passed', observedAt: '2026-08-13T01:02:03Z' }]);
   assert.equal(partial.valid, false);
   assert.equal(partial.status, 'partial');
-  const complete = ['queue', 'pause', 'resume', 'skip', 'stop'].map((control) => ({ control, status: 'passed', observedAt: '2026-08-13T01:02:03Z' }));
+  const inferred = ['queue', 'pause', 'resume', 'skip', 'stop'].map((control) => ({ control, status: 'passed', observedAt: '2026-08-13T01:02:03Z' }));
+  assert.equal(validateControlTimeline(inferred).valid, false);
+  const complete = ['queue', 'pause', 'resume', 'skip', 'stop'].map((control) => ({ control, status: 'passed', observation: 'actual', observedAt: '2026-08-13T01:02:03Z' }));
   assert.deepEqual(validateControlTimeline(complete), { valid: true, status: 'passed', errors: [] });
 });
 
@@ -67,4 +73,3 @@ test('runtime evidence composes policy, actual playback, and fail-closed control
   assert.equal(result.playback.status, 'passed');
   assert.equal(result.controls.status, 'partial');
 });
-

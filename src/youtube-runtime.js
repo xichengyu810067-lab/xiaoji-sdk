@@ -2,13 +2,12 @@
 
 const ALLOWED_YOUTUBE_CLIENT = 'TVHTML5_SIMPLY';
 const REQUIRED_CONTROL_NAMES = ['queue', 'pause', 'resume', 'skip', 'stop'];
-const FORBIDDEN_YOUTUBE_KEY = /^(?:oauth(?:2)?|potoken|cookie|token|visitordata|refreshtoken)$/i;
 
 function inspectYouTubeClientPolicy(config) {
   const clients = collectClientValues(config);
   const forbiddenKeys = [];
   visitKeys(config, '', (key, path) => {
-    if (FORBIDDEN_YOUTUBE_KEY.test(normalizeKey(key))) forbiddenKeys.push(path);
+    if (isForbiddenYouTubeKey(normalizeKey(key))) forbiddenKeys.push(path);
   });
   const errors = [];
   if (clients.length !== 1 || clients[0] !== ALLOWED_YOUTUBE_CLIENT) {
@@ -18,7 +17,8 @@ function inspectYouTubeClientPolicy(config) {
   return {
     valid: errors.length === 0,
     allowedClient: ALLOWED_YOUTUBE_CLIENT,
-    clients,
+    clientCount: clients.length,
+    allowedClientConfigured: clients.length === 1 && clients[0] === ALLOWED_YOUTUBE_CLIENT,
     forbiddenKeys,
     errors
   };
@@ -29,11 +29,10 @@ function classifyLavalinkV4LoadResult(result) {
   const data = result && result.data;
   if (loadType === 'error') return { loadType: 'error', category: 'error', playable: false, itemCount: 0 };
   if (loadType === 'empty') return { loadType: 'empty', category: 'empty', playable: false, itemCount: 0 };
-  if (loadType === 'track') return { loadType: 'track', category: 'track', playable: isObject(data), itemCount: isObject(data) ? 1 : 0 };
-  if (loadType === 'search') return { loadType: 'search', category: 'search', playable: Array.isArray(data) && data.length > 0, itemCount: Array.isArray(data) ? data.length : 0 };
+  if (loadType === 'track') return summarizeTracks('track', [data]);
+  if (loadType === 'search') return summarizeTracks('search', data);
   if (loadType === 'playlist') {
-    const tracks = isObject(data) && Array.isArray(data.tracks) ? data.tracks : [];
-    return { loadType: 'playlist', category: 'playlist', playable: tracks.length > 0, itemCount: tracks.length };
+    return summarizeTracks('playlist', isObject(data) ? data.tracks : []);
   }
   return { loadType, category: 'unknown', playable: false, itemCount: 0 };
 }
@@ -65,6 +64,7 @@ function validateControlTimeline(timeline) {
     const completed = events.some((event) => isObject(event)
       && event.control === control
       && event.status === 'passed'
+      && event.observation === 'actual'
       && isRfc3339DateTime(event.observedAt));
     if (!completed) errors.push(`controls.${control} lacks an actual passed event`);
   }
@@ -97,6 +97,23 @@ function collectClientValues(config) {
     }
   });
   return clients;
+}
+
+function summarizeTracks(category, tracks) {
+  const validTracks = Array.isArray(tracks) ? tracks.filter(isPlayableTrack) : [];
+  return { loadType: category, category, playable: validTracks.length > 0, itemCount: validTracks.length };
+}
+
+function isPlayableTrack(track) {
+  return isObject(track) && typeof track.encoded === 'string' && track.encoded.length > 0;
+}
+
+function isForbiddenYouTubeKey(key) {
+  return key.startsWith('oauth')
+    || key.startsWith('potoken')
+    || key.startsWith('cookie')
+    || key.startsWith('visitor')
+    || key.includes('token');
 }
 
 function visitKeys(value, prefix, visitor) {
@@ -136,4 +153,3 @@ module.exports = {
   validateControlTimeline,
   validateYouTubeRuntimeEvidence
 };
-
