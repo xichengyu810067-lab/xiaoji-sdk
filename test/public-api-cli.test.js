@@ -9,7 +9,10 @@ test('CommonJS require exposes the public contract', () => {
   const sdk = require('../src');
   assert.equal(typeof sdk.inspectRepository, 'function');
   assert.equal(typeof sdk.validateEvidence, 'function');
-  assert.equal(Object.keys(sdk).length, 10);
+  assert.equal(typeof sdk.inspectYouTubeClientPolicy, 'function');
+  assert.equal(typeof sdk.classifyLavalinkV4LoadResult, 'function');
+  assert.equal(typeof sdk.validateYouTubeRuntimeEvidence, 'function');
+  assert.equal(Object.keys(sdk).length, 15);
 });
 
 test('ESM import can consume the CommonJS default export', () => {
@@ -26,5 +29,13 @@ test('CLI help and repository inspection work on Windows and Linux shells', () =
   const repo = spawnSync(process.execPath, [cli, 'repo', 'inspect', path.join(__dirname, '..')], { encoding: 'utf8' });
   assert.equal(repo.status, 0, repo.stderr);
   assert.equal(JSON.parse(repo.stdout).isRepository, true);
+  const classify = spawnSync(process.execPath, [cli, 'lavalink', 'classify', path.join(__dirname, 'fixtures', 'lavalink-v4-track.json')], { encoding: 'utf8' });
+  assert.equal(classify.status, 0, classify.stderr);
+  assert.equal(JSON.parse(classify.stdout).category, 'track');
+  const policy = spawnSync(process.execPath, [cli, 'youtube', 'inspect', path.join(__dirname, 'fixtures', 'youtube-policy.json')], { encoding: 'utf8' });
+  assert.equal(policy.status, 0, policy.stderr);
+  assert.equal(JSON.parse(policy.stdout).valid, true);
+  const evidence = spawnSync(process.execPath, [cli, 'youtube', 'evidence', path.join(__dirname, 'fixtures', 'youtube-runtime-partial.json')], { encoding: 'utf8' });
+  assert.equal(evidence.status, 1);
+  assert.equal(JSON.parse(evidence.stdout).status, 'partial');
 });
-

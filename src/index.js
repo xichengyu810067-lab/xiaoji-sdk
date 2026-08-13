@@ -8,6 +8,13 @@ const { replyWithReferenceFallback } = require('./reply');
 const { inspectPersistencePaths, createJsonFileStore } = require('./persistence');
 const { redact } = require('./redaction');
 const { createEvidence, validateEvidence } = require('./evidence');
+const {
+  inspectYouTubeClientPolicy,
+  classifyLavalinkV4LoadResult,
+  validateFiveTrackPlaybackEvidence,
+  validateControlTimeline,
+  validateYouTubeRuntimeEvidence
+} = require('./youtube-runtime');
 
 module.exports = {
   inspectRepository,
@@ -19,6 +26,10 @@ module.exports = {
   createJsonFileStore,
   redact,
   createEvidence,
-  validateEvidence
+  validateEvidence,
+  inspectYouTubeClientPolicy,
+  classifyLavalinkV4LoadResult,
+  validateFiveTrackPlaybackEvidence,
+  validateControlTimeline,
+  validateYouTubeRuntimeEvidence
 };
-

@@ -1,0 +1,16 @@
+{
+  "youtubePolicy": {
+    "clients": ["TVHTML5_SIMPLY"]
+  },
+  "playback": {
+    "tracks": [
+      {"id": "synthetic-track-1", "events": [{"type": "TrackStart", "observation": "actual", "observedAt": "2026-08-13T01:02:03Z"}, {"type": "now-playing", "observation": "actual", "observedAt": "2026-08-13T01:02:04Z"}]},
+      {"id": "synthetic-track-2", "events": [{"type": "TrackStart", "observation": "actual", "observedAt": "2026-08-13T01:02:03Z"}, {"type": "now-playing", "observation": "actual", "observedAt": "2026-08-13T01:02:04Z"}]},
+      {"id": "synthetic-track-3", "events": [{"type": "TrackStart", "observation": "actual", "observedAt": "2026-08-13T01:02:03Z"}, {"type": "now-playing", "observation": "actual", "observedAt": "2026-08-13T01:02:04Z"}]},
+      {"id": "synthetic-track-4", "events": [{"type": "TrackStart", "observation": "actual", "observedAt": "2026-08-13T01:02:03Z"}, {"type": "now-playing", "observation": "actual", "observedAt": "2026-08-13T01:02:04Z"}]},
+      {"id": "synthetic-track-5", "events": [{"type": "TrackStart", "observation": "actual", "observedAt": "2026-08-13T01:02:03Z"}, {"type": "now-playing", "observation": "actual", "observedAt": "2026-08-13T01:02:04Z"}]}
+    ]
+  },
+  "controls": []
+}
+

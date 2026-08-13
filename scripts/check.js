@@ -14,7 +14,10 @@ if (!Number.isInteger(major) || major < 18) {
 const requiredExports = [
   'inspectRepository', 'inspectRenderBlueprint', 'inspectLavalinkConfig',
   'normalizeTrackUserData', 'replyWithReferenceFallback', 'inspectPersistencePaths',
-  'createJsonFileStore', 'redact', 'createEvidence', 'validateEvidence'
+  'createJsonFileStore', 'redact', 'createEvidence', 'validateEvidence',
+  'inspectYouTubeClientPolicy', 'classifyLavalinkV4LoadResult',
+  'validateFiveTrackPlaybackEvidence', 'validateControlTimeline',
+  'validateYouTubeRuntimeEvidence'
 ];
 const entrypoint = path.join(__dirname, '..', 'src', 'index.js');
 if (!fs.existsSync(entrypoint)) {
@@ -30,4 +33,3 @@ if (!fs.existsSync(entrypoint)) {
     console.log(`Public API contract exports ${requiredExports.length} functions.`);
   }
 }
-
